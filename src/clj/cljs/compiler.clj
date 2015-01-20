@@ -1024,18 +1024,19 @@
           opts      (merge {:optimizations :none} opts)]
       (if (.exists src-file)
         (try
-          (let [{ns :ns :as ns-info} (ana/parse-ns src-file dest-file opts)
-                opts (if (= ns 'cljs.core) (assoc opts :static-fns true) opts)]
-            (if (requires-compilation? src-file dest-file opts)
-              (do
-                (util/mkdirs dest-file)
-                (when (contains? (::ana/namespaces @env/*compiler*) ns)
-                  (swap! env/*compiler* update-in [::ana/namespaces] dissoc ns))
-                (compile-file* src-file dest-file opts))
-              (do
-                (when-not (contains? (::ana/namespaces @env/*compiler*) ns)
-                  (with-core-cljs opts (fn [] (ana/analyze-file src-file opts))))
-                ns-info)))
+          (binding [*host* :cljs, *target* :cljs]
+            (let [{ns :ns :as ns-info} (ana/parse-ns src-file dest-file opts)
+                  opts (if (= ns 'cljs.core) (assoc opts :static-fns true) opts)]
+              (if (requires-compilation? src-file dest-file opts)
+                (do
+                  (util/mkdirs dest-file)
+                  (when (contains? (::ana/namespaces @env/*compiler*) ns)
+                    (swap! env/*compiler* update-in [::ana/namespaces] dissoc ns))
+                  (compile-file* src-file dest-file opts))
+                (do
+                  (when-not (contains? (::ana/namespaces @env/*compiler*) ns)
+                    (with-core-cljs opts (fn [] (ana/analyze-file src-file opts))))
+                  ns-info))))
           (catch Exception e
             (throw (ex-info (str "failed compiling file:" src) {:file src} e))))
         (throw (java.io.FileNotFoundException. (str "The file " src " does not exist.")))))))

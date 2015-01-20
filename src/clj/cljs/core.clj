@@ -34,7 +34,9 @@
 
                             cond-> cond->> as-> some-> some->>
 
-                            if-some when-some test ns-interns var vswap!])
+                            if-some when-some test ns-interns var vswap!
+                            
+                            ns+ case-host case-target])
   (:require clojure.walk
             clojure.set
             cljs.compiler
@@ -64,7 +66,8 @@
   memfn
   when when-first when-let when-not while
   cond-> cond->> as-> some-> some->>
-  if-some when-some])
+  if-some when-some
+  ns+ case-host case-target])
 
 (defmacro defonce [x init]
   `(when-not (exists? ~x)

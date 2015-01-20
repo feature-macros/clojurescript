@@ -1286,14 +1286,15 @@
     (set! *cljs-ns* name)
     (when *load-macros*
       (load-core)
-      (doseq [nsym (vals use-macros)]
-        (if-let [k (:use-macros @reload)]
-          (clojure.core/require nsym k)
-          (clojure.core/require nsym)))
-      (doseq [nsym (vals require-macros)]
-        (if-let [k (:require-macros @reload)]
-          (clojure.core/require nsym k)
-          (clojure.core/require nsym)))
+      (binding [*host* :clj, *target* :cljs]
+        (doseq [nsym (vals use-macros)]
+          (if-let [k (:use-macros @reload)]
+            (clojure.core/require nsym k)
+            (clojure.core/require nsym)))
+        (doseq [nsym (vals require-macros)]
+          (if-let [k (:require-macros @reload)]
+            (clojure.core/require nsym k)
+            (clojure.core/require nsym))))
       (when (seq use-macros)
         (check-use-macros use-macros env)))
     (let [ns-info
