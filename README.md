@@ -1,3 +1,8 @@
+## Feature Macros for Clojure / ClojureScript
+
+Please navigate to the [feature-macros-demo] directory for details.
+[feature-macros-demo]: https://github.com/feature-macros/clojurescript/tree/feature-macros/feature-macros-demo
+
 ## What is ClojureScript? ##
 
 ClojureScript is a new compiler for [Clojure](http://clojure.org) that targets JavaScript. It is designed to emit JavaScript code which is compatible with the advanced compilation mode of the [Google Closure](http://code.google.com/closure/) optimizing compiler.

@@ -21,3 +21,7 @@ closure-release-*
 builds
 .cljs*
 node_modules
+
+feature-macros-demo/bin/
+feature-macros-demo/target/
+feature-macros-demo/.deps.time

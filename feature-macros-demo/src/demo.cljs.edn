@@ -1,0 +1,2 @@
+{:require [demo.core]
+ :init-fns [demo.core/-main]}
