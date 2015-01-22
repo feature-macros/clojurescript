@@ -6,6 +6,7 @@
                    [adzerk/boot-cljs "0.0-2629-8"]])
 
 (require '[demo.core :as core]
+         '[clojure.java.io :as io]
          '[adzerk.boot-cljs :refer [cljs]]
          '[boot.from.io.aviso.ansi :refer :all])
 
@@ -23,6 +24,7 @@
   (comp
     (say "** COMPILING CLJS DEMO **")
     (cljs)
+    (say (format "file://%s/target/index.html" (System/getProperty "user.dir")))
     (say "** RUNNING CLJ DEMO **")
     (run)
     (say "** TRY FEATURE MACROS IN THE REPL **")

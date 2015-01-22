@@ -7,7 +7,7 @@
                    [clojure.string :as string]
                    [goog.Uri :as uri])))
 
-(case-host
+(case-platform
   :clj
   (defn url-encode
     [string]
@@ -18,7 +18,7 @@
     [string]
     (some-> string str (js/encodeURIComponent) (.replace "+" "%20"))))
 
-(case-host
+(case-platform
   :clj
   (defn url-decode
     ([string] (url-decode string "UTF-8"))
@@ -87,7 +87,7 @@
                                        (map->query query))))
            (when anchor (str \# anchor))))))
 
-(case-host
+(case-platform
   :clj
   (defn- url*
     [url]
@@ -109,7 +109,7 @@
       new-default
       s)))
 
-(case-host
+(case-platform
   :clj nil
   :cljs
   (defn- url*

@@ -3,15 +3,15 @@
   (:cljs (:require [goog.string :as gstring]
                    [goog.string.format])))
 
-(case-host
+(case-platform
   :cljs nil
   :clj (defmacro log-err [message]
-         (case-target
+         (condp = *platform*
            :clj  `(.println (System/-err) ~message)
            :cljs `(.warn js/console ~message))))
 
 (defn format [fmt & args]
-  (case-host
+  (case-platform
     :clj  (apply clojure.core/format fmt args)
     :cljs (apply gstring/format fmt args)))
 

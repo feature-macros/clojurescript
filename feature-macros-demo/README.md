@@ -100,11 +100,11 @@ look like:
 
 ```clojure
 (.getTime
-  (case-host
+  (case-platform
     :clj  (java.util.Date.)
     :cljs (js/Date.)))
 
-(case-host
+(case-platform
   :clj
   (defn url-encode
     [string]
@@ -114,7 +114,7 @@ look like:
     [string]
     (some-> string str (js/encodeURIComponent) (.replace "+" "%20"))))
 
-(case-host :cljs nil :clj (set! *warn-on-reflection* true))
+(case-platform :cljs nil :clj (set! *warn-on-reflection* true))
 ```
 
 And some things that Feature Expressions can't do:
@@ -122,10 +122,10 @@ And some things that Feature Expressions can't do:
 *Cross-platform macros:*
 
 ```clojure
-(case-host
+(case-platform
   :cljs nil
   :clj  (defmacro my-macro [name & body]
-          (case-target
+          (condp = *platform*
             :clj  `(.println (System/-out) (str (do ~@body)))
             :cljs `(.log js/console (str (do ~@body))))))
 ```
@@ -136,7 +136,7 @@ And some things that Feature Expressions can't do:
 (defmacro +clj
   "Form is evaluated only in the JVM."
   [form]
-  (when (= :clj *host*) form))
+  (when (= :clj *platform*) form))
 ```
 
 Have a look at the source files in this demo directory [for][core] [more][util]
@@ -166,35 +166,29 @@ than the one it’s running on. Portable code should not contain:
 ```clojure
 (in-ns 'clojure.core)
 
-(def ^:dynamic *host*   :clj)
-(def ^:dynamic *target* :clj)
+(def ^:dynamic *platform* :clj)
 
 (defmacro ns+ [& clauses]
   (let [require-ops    #{:refer-clojure :require :use :import :load
                          :gen-class :require-macros :use-macros}
         this-platform? #(cond (or (not (seq? %)) (require-ops (first %))) %
-                              (= *host* (first %)) (second %))]
+                              (= *platform* (first %)) (second %))]
     `(~'ns ~@(keep this-platform? clauses))))
 
-(defmacro case-host [& pairs]
-  (get (apply hash-map pairs) *host*
-       `(throw (ex-info "Unsupported host platform" {:host *host*}))))
+(defmacro case-platform [& pairs]
+  (get (apply hash-map pairs) *platform*
+       `(throw (ex-info "Unsupported platform" {:platform *platform*}))))
 
-(defmacro case-target [& pairs]
-  (get (apply hash-map pairs) *target*
-       `(throw (ex-info "Unsupported target platform" {:target *target*}))))
+(alter-var-root #'load #(fn [& xs] (binding [*platform* :clj] (apply % xs))))
 ```
 
-* New dynamic vars in core, `*host*` and `*target*`, the officially
-  recognized values of which include `:clj` and `:cljs`. Compilers bind
-  these to the proper platform when cross compiling.
-* Dispatch on `*host*` in platform-specific code, dispatch on `*target*`
-  in macros that emit platform-specific code.
-* New macros in core, `case-host` and `case-target`, for conditionally
-  emitting code depending on the values of `*host*` and `*target*`,
-  respectively.
+* New dynamic var in core, `*platform*`, the officially recognized values of
+  which include `:clj` and `:cljs`. Compilers bind this to the proper platform
+  when compiling and dispatch on `*platform*` in platform-specific code.
+* New macro in core, `case-platform` for conditionally emitting code depending
+  on the value of `*platform*`.
 * New `ns+` macro in core, for conditionally emitting namespace declaration
-  clauses depending on the value of `*host*`.
+  clauses depending on the value of `*platform*`.
 
 ## Q &amp; A
 
@@ -208,7 +202,7 @@ than the one it’s running on. Portable code should not contain:
   * At a deeper level, areas in source code without Clojure semantics
     are really windows into *languages other than Clojure*.  If
     anything about these languages can be platform-dependent, then
-    they too should participate in the system of `*host*` and
+    they too should participate in the system of `*platform*` and
     `*target*` so that users may extend them portably.
 * What about the "feature set" idea to support
   [implementation-dependent features][features] like `:arch/osx` in
@@ -218,8 +212,8 @@ than the one it’s running on. Portable code should not contain:
     platform-independent way of determining platform.  Then, users can
     write platform-specific code to determine platform-specific
     functionality.
-* How about `*foo*` and `*bar*` instead of `*host*` and `*platform*`?
-  Also, which file extensions should be used?
+* How about `*foo*` instead of `*platform*`? Also, which file extensions
+  should be used?
   * We just wanted to show the general idea and that it works.  We
     don't recommend particular names and left supporting details
     unspecified.
