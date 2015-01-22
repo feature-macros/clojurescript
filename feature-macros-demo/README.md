@@ -117,9 +117,17 @@ look like:
 (case-platform :cljs nil :clj (set! *warn-on-reflection* true))
 ```
 
-And some things that Feature Expressions can't do:
+*With Feature Expressions:*
 
-*Cross-platform macros:*
+```clojure
+#+clj
+(defmacro my-macro [name & body]
+  (cond
+    (contains? *features* :clj)  `(.println (System/-out) (str (do ~@body)))
+    (contains? *features* :cljs) `(.log js/console (str (do ~@body)))))
+```
+
+*With Feature Macros:*
 
 ```clojure
 (case-platform
@@ -128,15 +136,6 @@ And some things that Feature Expressions can't do:
           (condp = *platform*
             :clj  `(.println (System/-out) (str (do ~@body)))
             :cljs `(.log js/console (str (do ~@body))))))
-```
-
-*Userland extensions:*
-
-```clojure
-(defmacro +clj
-  "Form is evaluated only in the JVM."
-  [form]
-  (when (= :clj *platform*) form))
 ```
 
 Have a look at the source files in this demo directory [for][core] [more][util]
