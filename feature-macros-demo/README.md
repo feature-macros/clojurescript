@@ -1,3 +1,7 @@
+## Note: [we retracted this proposal](https://groups.google.com/d/msg/clojure-dev/LW0ocQ1RcYI/PDOpmTBt-VIJ) but leave it here for reference.
+
+<hr/>
+
 # Feature Macros &mdash; an Alternative to Feature Expressions
 
 *[Discuss on Hacker News](https://news.ycombinator.com/item?id=8923385)*
